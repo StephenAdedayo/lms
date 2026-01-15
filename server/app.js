@@ -17,6 +17,9 @@ const app = express()
 await connectDB()
 await connectCloudinary()
 
+app.post("/stripe", express.raw({type: 'application/json'}), stripeWebHooks)
+
+
 app.use(express.json())
 app.use(cors())
 
@@ -26,7 +29,6 @@ app.use(morgan("dev"))
 
 app.get("/", (req, res) => res.send("API Working"))
 app.post("/clerk", clerkWebhooks)
-app.post("/stripe", express.raw({type: 'application/json'}), stripeWebHooks)
 
 app.use("/api/educator", educatorRouter)
 app.use("/api/course", courseRouter)
