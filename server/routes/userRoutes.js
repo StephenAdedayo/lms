@@ -1,12 +1,13 @@
 import express from "express"
-import { getUserData, getUserEnrolledCourses, purchaseCourse } from "../controllers/userController.js"
+import { addUserRating, getUserData, getUserEnrolledCourses, getUserProgressData, purchaseCourse, updateUserCourseProgress } from "../controllers/userController.js"
 
 const userRouter = express.Router()
-
 
 userRouter.get("/data", getUserData)
 userRouter.get("/enrolled-courses", getUserEnrolledCourses)
 userRouter.post("/purchase", purchaseCourse)
-
+userRouter.post("/update-course-progress", updateUserCourseProgress)
+userRouter.post("/get-course-progress", getUserProgressData)
+userRouter.post("/add-rating", addUserRating)
 
 export default userRouter
