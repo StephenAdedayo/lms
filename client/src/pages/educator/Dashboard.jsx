@@ -2,20 +2,35 @@ import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../../context/AppContext'
 import { assets, dummyDashboardData } from '../../assets/assets'
 import Loading from '../../components/student/Loading'
+import toast from 'react-hot-toast'
 
 const Dashboard = () => {
 
-  const {currency} = useAppContext()
+  const {currency, axios, getToken, isEducator} = useAppContext()
 
   const [dashboardData, setDashboardData] = useState(null)
 
   const fetchDashboardData = async () => {
-    setDashboardData(dummyDashboardData)
+
+    try {
+      const {data} = await axios.get("/api/educator/dashboard", {headers : {Authorization : `Bearer ${await getToken()}`}})
+
+      if(data.success){
+        setDashboardData(data.dashboardData)
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   useEffect(() => {
+    if(isEducator){
    fetchDashboardData()
-  }, [])
+
+    }
+  }, [isEducator])
 
   return dashboardData ? (
     <div className='min-h-screen flex flex-col items-start justify-between gap-8 md:p-8  md:pb-0 p-4 pt-8 pb-0'>

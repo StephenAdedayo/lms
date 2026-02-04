@@ -21,6 +21,7 @@ app.post("/stripe", express.raw({type: 'application/json'}), stripeWebHooks)
 
 
 app.use(express.json())
+app.use(express.urlencoded({extended : true}))
 app.use(cors())
 
 // to make use of req.auth() which is added from the clerk middleware

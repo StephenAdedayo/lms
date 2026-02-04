@@ -1,20 +1,35 @@
 import React, { useEffect, useState } from 'react'
 import { dummyStudentEnrolled } from '../../assets/assets'
 import  Loading from "../../components/student/Loading"
+import { useAppContext } from '../../context/AppContext'
+import toast from 'react-hot-toast'
 
 
 const StudentsEnrolled = () => {
 
 
+  const {axios, getToken, isEducator} = useAppContext()
   const [enrolledStudents, setEnrolledStudents] = useState(null)
 
   const fetchEnrolledStudents = async () => {
-    setEnrolledStudents(dummyStudentEnrolled)
+    try {
+      const {data} = await axios.get("/api/educator/enrolled-students", {headers : {Authorization : `Bearer ${await getToken()}`}})
+
+      if(data.success){
+        setEnrolledStudents(data.enrolledStudents.reverse())
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   useEffect(() => {
-      fetchEnrolledStudents()
-  }, [])
+    if(isEducator){
+    fetchEnrolledStudents()
+    }
+  }, [isEducator])
 
   return enrolledStudents ?  (
     <div className='min-h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>
@@ -42,7 +57,7 @@ const StudentsEnrolled = () => {
            </td>
 
            <td className='px-4 py-3 truncate'>{item?.courseTitle}</td>
-           <td className='px-4 py-3 hidden sm:table-cell'>{new Date(item.purchaseDate).toLocaleDateString()}</td>
+           <td className='px-4 py-3 hidden sm:table-cell'>{new Date(item.purchase).toLocaleDateString()}</td>
 
         </tr>
       ))}

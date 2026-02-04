@@ -5,10 +5,11 @@ import Loading from '../../components/student/Loading'
 import { assets } from '../../assets/assets'
 import humanizeDuration from 'humanize-duration'
 import YouTube from "react-youtube"
+import toast from 'react-hot-toast'
 
 const CourseDetails = () => {
 
-  const {allCourses, calculateRating, calculateChapterTime, calculateCourseDuration,calculateNoOfLectures, currency} = useAppContext()
+  const {allCourses, calculateRating, calculateChapterTime, calculateCourseDuration,calculateNoOfLectures, currency, axios, userData, getToken} = useAppContext()
 
 
   const [courseData, setCourseData] = useState(null)
@@ -21,8 +22,44 @@ const CourseDetails = () => {
 
   const fetchCourseData = async () => {
 
-    const course = allCourses.find(course => course._id === id)
-    setCourseData(course)
+    try {
+      const {data} = await axios.get(`/api/course/${id}`)
+
+      if(data.success){
+        setCourseData(data.courseData)
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
+  const enrolledNow = async () => {
+
+    try {
+      if(!userData){
+        return toast.error("Login to enroll")
+      }
+
+      if(isAlreadyEnrolled){
+        return toast.error("Already Enrolled")
+      }
+
+      const {data} = await axios.post("/api/user/purchase", {courseId: courseData._id}, {headers : {Authorization : `Bearer ${await getToken()}`}})
+
+
+      if(data.success){
+        const {session_url} = data
+        window.location.replace(session_url)
+      }else{
+        toast.error(data.message)
+      }
+
+
+    } catch (error) {
+      toast.error(error.message)
+    }
 
   }
 
@@ -36,6 +73,12 @@ const CourseDetails = () => {
   useEffect(() => {
      fetchCourseData()
   }, [allCourses])
+
+  useEffect(() => {
+    if(userData && courseData){
+      setIsAlreadyEnrolled(userData.enrolledCourses.includes(courseData._id))
+    }
+  }, [userData, courseData])
 
   return courseData ? (
     <div className='flex md:flex-row  flex-col-reverse gap-10 relative items-start justify-between md:px-36 px-8 md:pt-30 pt-20 text-left'>
@@ -149,7 +192,7 @@ const CourseDetails = () => {
 
       </div>
 
-      <button className='md:mt-6 mt-4 w-full active:scale-90 transition py-3 bg-blue-600 rounded text-white font-medium'>{isAlreadyEnrolled ? "Already Enrolled" : "Enroll Now"}</button>
+      <button onClick={enrolledNow} className='md:mt-6 mt-4 w-full active:scale-90 transition py-3 bg-blue-600 rounded text-white font-medium'>{isAlreadyEnrolled ? "Already Enrolled" : "Enroll Now"}</button>
 
       <div className='pt-6'>
         <p className='md:text-xl text-lg font-medium text-gray-800'>What's in this course</p>

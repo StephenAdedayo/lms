@@ -3,15 +3,39 @@ import { assets } from '../../assets/assets'
 import { Link, useLocation } from 'react-router-dom'
 import { useClerk, UserButton, useUser } from '@clerk/clerk-react'
 import { useAppContext } from '../../context/AppContext'
+import toast from 'react-hot-toast'
 
 const Navbar = () => {
 
     const location = useLocation()
     const isCourseListPage = location.pathname.includes("course-list")
-    const {navigate, isEducator} = useAppContext()
+    const {navigate, isEducator, axios, setIsEducator, getToken} = useAppContext()
 
     const {user} = useUser()
     const {openSignIn} = useClerk()
+
+
+    const becomeEducator = async () => {
+
+      try {
+        if(isEducator){
+          navigate("/educator")
+          return
+        }
+
+        const {data} = await axios.get("/api/educator/update-role", {headers : {Authorization : `Bearer ${await getToken()}`}})
+
+        if(data.success){
+          setIsEducator(true)
+          toast.success(data.message)
+        }else{
+          toast.error(data.message)
+        }
+      } catch (error) {
+        toast.error(error.message)
+      }
+
+    }
 
   return (
     <div className={`flex justify-between items-center px-4 sm:px-10 md:px-14 lg:px-36 border-b border-gray-500 py-4 ${isCourseListPage ? "bg-white" : "bg-cyan-100/70" }`}>
@@ -23,7 +47,7 @@ const Navbar = () => {
                {user &&  (
                  <div className='flex items-center gap-5 '>
 
-                <button className='cursor-pointer' onClick={() => navigate("/educator")}>{isEducator ? "Educator Dashboard" : "Become an Educator"}</button>
+                <button className='cursor-pointer' onClick={becomeEducator}>{isEducator ? "Educator Dashboard" : "Become an Educator"}</button>
                  |
                 <Link to={"/my-enrollments"}>My Enrollments</Link>
                 </div>)
@@ -33,9 +57,9 @@ const Navbar = () => {
 
 
        {user ? <UserButton>
-        <UserButton.MenuItems>
-            <UserButton.Action label='' labelIcon={""}/>
-        </UserButton.MenuItems>
+        {/* <UserButton.MenuItems>
+            <UserButton.Action/>
+        </UserButton.MenuItems> */}
        </UserButton> : (
            <button onClick={() => openSignIn()} className='bg-blue-600 text-white px-5 py-2 rounded-full cursor-pointer'>Create Account</button>
        )}
@@ -49,7 +73,7 @@ const Navbar = () => {
                 {user &&  (
                  <div className='flex items-center gap-5 '>
 
-<button onClick={() => navigate("/educator")}>{isEducator ? "Educator Dashboard" : "Become an Educator"}</button>                 |
+<button onClick={becomeEducator}>{isEducator ? "Educator Dashboard" : "Become an Educator"}</button>                 |
                 <Link to={"/my-enrollments"}>My Enrollments</Link>
                 </div>)
 

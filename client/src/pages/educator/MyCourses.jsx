@@ -4,17 +4,28 @@ import Loading from '../../components/student/Loading'
 
 const MyCourses = () => {
 
-  const {allCourses, currency} = useAppContext()
+  const {allCourses, currency, isEducator, getToken, axios} = useAppContext()
 
   const [courses, setCourses] = useState(null)
 
   const fetchEducatorCourses = async () => {
-    setCourses(allCourses)
+
+    try {
+      const {data} = await axios.get("/api/educator/courses", {headers : {Authorization : `Bearer ${await getToken()}`}})
+
+      data.success && setCourses(data.courses)
+    } catch (error) {
+      toast.error(error.message)
+    }
+
   }
 
   useEffect(() => {
-   fetchEducatorCourses()
-  }, [allCourses])
+    if(isEducator){
+      fetchEducatorCourses()
+
+    }
+  }, [isEducator])
 
   return courses ?  (
     <div className='h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>

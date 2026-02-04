@@ -36,6 +36,8 @@ export const AppContextProvider = ({children}) => {
 
        try {
         const token = await getToken() 
+        console.log(token);
+        
         if(!token){
             return
         }

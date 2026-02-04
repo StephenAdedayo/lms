@@ -8,7 +8,7 @@ export const getUserData = async (req, res) => {
 
     try {
         const userId = await req.auth().userId
-
+        
         const user = await User.findById(userId)
         if(!user){
             return res.status(404).json({success : false, message : "User not found"})
@@ -152,41 +152,95 @@ export const getUserProgressData = async (req, res) => {
 
 // add user ratings
 
-export const addUserRating = async(req, res) => {
+// export const addUserRating = async(req, res) => {
 
-    const userId = await req.auth().userId
-    const {courseId, rating} = req.body
+//     const userId = await req.auth().userId
+//     const {courseId, rating} = req.body
 
 
-    if(!courseId || !userId ||  !rating || rating < 1 || rating > 5 ){
-        return res.status(404).json({success : false, message :"Invalid details"})
+//     if(!courseId || !userId ||  !rating || rating < 1 || rating > 5 ){
+//         return res.status(404).json({success : false, message :"Invalid details"})
+//     }
+
+
+//     try {
+//         const course = await Course.findById(courseId)
+//         if(!course){
+//             return res.status(400).json({success : false, message : "course not found"})
+//         }
+
+//         const user = await User.findById(userId)
+//         if(!user || !user.enrolledCourses.includes(courseId)){
+//             return res.status(400).json({success : false, message : "user has not purchased this course"})
+//         }
+
+//        const existingRatingIndex = course.courseRatings.findIndex(r => r.userId === userId)
+
+//        if(existingRatingIndex){
+//         course.courseRatings[existingRatingIndex].rating = rating
+
+//        }else{
+//         course.courseRatings.push({userId, rating})
+//        }
+
+//        await course.save()
+
+//        return res.status(200).json({success : true, message : "Rating added"})
+//      } catch (error) {
+//         res.status(500).json({success : false, message : error.message})
+//     }
+// }
+
+export const addUserRating = async (req, res) => {
+  try {
+    const { userId } = req.auth;
+    const { courseId, rating } = req.body;
+
+    if (!courseId || !userId || !rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid details"
+      });
     }
 
-
-    try {
-        const course = await Course.findById(courseId)
-        if(!course){
-            return res.status(400).json({success : false, message : "course not found"})
-        }
-
-        const user = await User.findById(userId)
-        if(!user || !user.enrolledCourses.includes(courseId)){
-            return res.status(400).json({success : false, message : "user has not purchased this course"})
-        }
-
-       const existingRatingIndex = course.courseRatings.findIndex(r => r.userId === userId)
-
-       if(existingRatingIndex){
-        course.courseRatings[existingRatingIndex].rating = rating
-
-       }else{
-        course.courseRatings.push({userId, rating})
-       }
-
-       await course.save()
-
-       return res.status(200).json({success : true, message : "Rating added"})
-     } catch (error) {
-        res.status(500).json({success : false, message : error.message})
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found"
+      });
     }
-}
+
+    const user = await User.findById(userId);
+    if (!user || !user.enrolledCourses.includes(courseId)) {
+      return res.status(403).json({
+        success: false,
+        message: "User has not purchased this course"
+      });
+    }
+
+    const existingRatingIndex = course.courseRatings.findIndex(
+      r => r.userId === userId
+    );
+
+    if (existingRatingIndex !== -1) {
+      course.courseRatings[existingRatingIndex].rating = rating;
+    } else {
+      course.courseRatings.push({ userId, rating });
+    }
+
+    await course.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Rating added successfully"
+    });
+
+  } catch (error) {
+    console.error("ADD RATING ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
