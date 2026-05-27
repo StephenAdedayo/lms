@@ -208,7 +208,6 @@ const AddCourse = () => {
                            <img onClick={() => handleLecture("remove", chapter.chapterId, lectureIndex)} src={assets.cross_icon} alt="" className='cursor-pointer'/>
                           </div>
                         ))}
-
                         <div onClick={() => handleLecture("add", chapter.chapterId)} className='inline-flex bg-gray-100 p-2 rounded cursor-pointer mt-2'>
                           + Add Lecture
                         </div>

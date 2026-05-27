@@ -96,10 +96,11 @@ export const getEducatorDashboardData = async (req, res) => {
 
         const enrolledStudentsData = []
 
+        // loops through the courses, check the User model if the course.enrolledStudents has id's present in the user model and select name and image alone
         for(const course of courses){
             const students =  await User.find({
                 _id : {$in : course.enrolledStudents}
-            }, "name, imageUrl")
+            }, "name imageUrl")
 
             students.forEach(student => {
                 enrolledStudentsData.push({
@@ -125,13 +126,13 @@ export const getEnrolledStudentsData = async (req, res) => {
          const educator = await req.auth().userId
 
         const courses = await Course.find({educator})
-
+        
         const courseIds = courses.map(course => course._id)
 
-         const purchases = await Purchase.find({
+        const purchases = await Purchase.find({
             courseId : {$in : courseIds},
             status : "Completed"
-        }).populate("userId", "name, imageUrl").populate("courseId", "courseTitle")
+        }).populate("userId", "name imageUrl").populate("courseId", "courseTitle")
 
         const enrolledStudents = purchases.map(purchase => ({
             student : purchase.userId,

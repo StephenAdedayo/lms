@@ -7,9 +7,8 @@ const MyEnrollments = () => {
 
   const {enrolledCourses, calculateCourseDuration, navigate, userData, fetchUserEnrolledCourses, getToken, axios, calculateNoOfLectures} = useAppContext()
 
-  const [progressArray, setProgressArray] = useState([])
-
-  // {lectureCompleted : 2, totalLectures: 4},
+  const [progressArray, setProgressArray] = useState([
+    // {lectureCompleted : 2, totalLectures: 4},
     // {lectureCompleted : 1, totalLectures: 5},
     // {lectureCompleted : 3, totalLectures: 6},
     // {lectureCompleted : 4, totalLectures: 4},
@@ -24,6 +23,9 @@ const MyEnrollments = () => {
     // {lectureCompleted : 0, totalLectures: 2},
     // {lectureCompleted : 5, totalLectures: 5}
 
+  ])
+
+  
   const getCourseProgress = async () => {
 
     try {
@@ -85,7 +87,7 @@ const MyEnrollments = () => {
               <td className='md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3'><img src={course.courseThumbnail} alt="" className='w-14 sm:w-24 md:w-28'/>
               <div className='flex-1'>
                 <p className='mb-1 max-sm:text-sm'>{course.courseTitle}</p>
-                <Line strokeWidth={2} percent={progressArray[index] ? progressArray[index]?.lectureCompleted * 100 / progressArray[index]?.totalLectures : 0} className='bg-gray-300 rounded-full'/>
+                <Line strokeWidth={1} percent={progressArray[index] ? progressArray[index]?.lectureCompleted * 100 / progressArray[index]?.totalLectures : 0} className='bg-gray-300 rounded-full'/>
               </div>
               </td>
               

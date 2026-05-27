@@ -7,10 +7,7 @@ import axios from "axios"
 import toast from "react-hot-toast";
 
 
-
 const AppContext = createContext()
-
-
 
 export const AppContextProvider = ({children}) => {
 
@@ -30,13 +27,15 @@ export const AppContextProvider = ({children}) => {
 
     const fetchUserData = async () => {
 
+        // if(!user) return;
+
         if(user?.publicMetadata?.role === "educator"){
             setIsEducator(true)
         }
 
        try {
         const token = await getToken() 
-        console.log(token);
+        // console.log(token);
         
         if(!token){
             return
@@ -44,7 +43,7 @@ export const AppContextProvider = ({children}) => {
         const {data} = await axios.get("/api/user/data", {headers : {Authorization : `Bearer ${token}`}})
 
         if(data.success){
-            setUserData(data.user)
+            setUserData(data?.user)
             console.log(data.user);
             
         }else{
@@ -137,17 +136,17 @@ export const AppContextProvider = ({children}) => {
     // fetch user enrolled courses
 
     const fetchUserEnrolledCourses = async () => {
-
+       if(!user) return;
         try {
             const {data} = await axios.get("/api/user/enrolled-courses", {headers : {Authorization : `Bearer ${await getToken()}`}})
 
             if(data.success){
-                setEnrolledCourses(data.enrolledCourses.reverse())
+                setEnrolledCourses(data?.enrolledCourses?.reverse())
             }else{
-                toast.error(data.message)
+                toast.error(data?.message)
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error?.message)
         }
     }
 

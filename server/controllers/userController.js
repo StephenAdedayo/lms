@@ -126,7 +126,7 @@ export const updateUserCourseProgress = async (req, res) => {
             })        
         }
 
-        res.status(200).json({success : true, message : "Porgress updated"})
+        res.status(200).json({success : true, message : "Progress updated"})
     } catch (error) {
         res.status(500).json({success : false, message : error.message})
     }
@@ -223,6 +223,7 @@ export const addUserRating = async (req, res) => {
       r => r.userId === userId
     );
 
+    // the findIndex method always returns -1 if condition is not meant
     if (existingRatingIndex !== -1) {
       course.courseRatings[existingRatingIndex].rating = rating;
     } else {
